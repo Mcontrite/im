@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"im/model"
+	"im/service"
 	"log"
 	"net"
 	"net/http"
@@ -26,11 +27,8 @@ type Node struct {
 	GroupSets set.Interface
 }
 
-//映射关系表
-var clientMap map[int64]*Node = make(map[int64]*Node, 0)
-
-//读写锁
-var rwlocker sync.RWMutex
+var rwlocker sync.RWMutex                                //读写锁
+var clientMap map[int64]*Node = make(map[int64]*Node, 0) //映射关系表
 
 func init() {
 	go udpsendproc()
@@ -41,9 +39,9 @@ func init() {
 var udpsendchan chan []byte = make(chan []byte, 1024)
 
 // 通过 udp 将消息广播到局域网
-func broadMsg(data []byte) {
-	udpsendchan <- data
-}
+// func broadMsg(data []byte) {
+// 	udpsendchan <- data
+// }
 
 // 完成udp数据的发送协程
 func udpsendproc() {
@@ -100,7 +98,7 @@ func udprecvproc() {
 }
 
 //添加新的群ID到用户的groupset中
-func AddGroupId(userId, gid int64) {
+func AddGroupID(userId, gid int64) {
 	//取得node
 	rwlocker.Lock()
 	node, ok := clientMap[userId]
@@ -124,13 +122,13 @@ func dispatch(data []byte) {
 	// 根据cmd对逻辑进行处理
 	switch msg.Cmd {
 	case CMD_SINGLE_MSG:
-		sendMsg(msg.Dstid, data)
+		sendMsg(msg.ObjectId, data)
 	case CMD_ROOM_MSG:
 		// 群聊转发逻辑
 		for userId, v := range clientMap {
-			if v.GroupSets.Has(msg.Dstid) {
+			if v.GroupSets.Has(msg.ObjectId) {
 				//自己排除,不发送
-				if msg.Userid != userId {
+				if msg.UserId != userId {
 					v.DataQueue <- data
 				}
 			}
@@ -182,12 +180,12 @@ func recvproc(node *Node) {
 //检测是否有效
 func checkToken(userId int64, token string) bool {
 	//从数据库里面查询并比对
-	user := userService.Find(userId)
+	user := service.GetUserByID(userId)
 	return user.Token == token
 }
 
-// ws://127.0.0.1/chat?id=1&token=xxxx
-func Chat(writer http.ResponseWriter, request *http.Request) {
+// ws://127.0.0.1/im?id=1&token=xxxx
+func Im(writer http.ResponseWriter, request *http.Request) {
 	// 检验接入是否合法
 	//checkToken(userId int64,token string)
 	query := request.URL.Query()
@@ -212,7 +210,7 @@ func Chat(writer http.ResponseWriter, request *http.Request) {
 		GroupSets: set.New(set.ThreadSafe),
 	}
 	// 获取用户全部群Id
-	comIds := contactService.SearchComunityIds(userId)
+	comIds := service.SearchGroupsIDs(userId)
 	for _, v := range comIds {
 		node.GroupSets.Add(v)
 	}

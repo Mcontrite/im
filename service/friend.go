@@ -7,19 +7,18 @@ import (
 )
 
 //查找好友
-func SearchFriend(userid int64) []model.User {
+func SearchFriends(userid int64) (users []model.User) {
 	friends := make([]model.Friend, 0)
 	ids := make([]int64, 0)
-	DB.Where("userid=?", userid).Find(&friends)
+	DB.Where("user_id=?", userid).Find(&friends)
 	for _, v := range friends {
-		ids = append(ids, v.User2ID)
+		ids = append(ids, v.User2Id)
 	}
-	users := make([]model.User, 0)
 	if len(ids) == 0 {
-		return users
+		return
 	}
 	DB.In("id", ids).Find(&users)
-	return users
+	return
 }
 
 //添加好友
@@ -28,31 +27,29 @@ func AddFriend(userid, user2id int64) error {
 		return errors.New("不能添加自己为好友")
 	}
 	friend := model.Friend{}
-	DB.Where("userid=?", userid).And("user2id=?", user2id).Get(&friend)
-	if friend.ID > 0 {
-		return errors.New("该用户已经被添加过啦")
+	DB.Where("user_id=?", userid).And("user2_id=?", user2id).Get(&friend)
+	if friend.Id > 0 {
+		return errors.New("已添加这个好友")
 	}
 	session := DB.NewSession() //事务
 	session.Begin()
 	_, err2 := session.InsertOne(model.Friend{ //插入自己的数据
-		UserID:   userid,
-		User2ID:  user2id,
+		UserId:   userid,
+		User2Id:  user2id,
 		CreateAt: time.Now(),
 	})
 	_, err3 := session.InsertOne(model.Friend{ //插入对方的数据
-		UserID:   user2id,
-		User2ID:  userid,
+		UserId:   user2id,
+		User2Id:  userid,
 		CreateAt: time.Now(),
 	})
 	if err2 == nil && err3 == nil {
 		session.Commit()
 		return nil
-	} else {
-		session.Rollback()
-		if err2 != nil {
-			return err2
-		} else {
-			return err3
-		}
 	}
+	session.Rollback()
+	if err2 != nil {
+		return err2
+	}
+	return err3
 }

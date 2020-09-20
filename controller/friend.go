@@ -10,11 +10,11 @@ import (
 //添加好友
 func AddFriend(w http.ResponseWriter, req *http.Request) {
 	// request.ParseForm()
-	// mobile := request.PostForm.Get("mobile")
-	// passwd := request.PostForm.Get("passwd")
+	// phone := request.PostForm.Get("phone")
+	// password := request.PostForm.Get("password")
 	var page model.Page
 	utils.Bind(req, &page)
-	err := service.AddFriend(page.UserID, page.ObjectID)
+	err := service.AddFriend(page.UserId, page.ObjectId)
 	if err != nil {
 		utils.RespFail(w, err.Error())
 	} else {
@@ -22,10 +22,10 @@ func AddFriend(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-//加载个人的好友
-func LoadFriend(w http.ResponseWriter, req *http.Request) {
+//加载全部好友
+func LoadFriends(w http.ResponseWriter, req *http.Request) {
 	var page model.Page
 	utils.Bind(req, &page)
-	users := service.SearchFriend(page.UserID)
-	utils.RespOkList(w, users, len(users))
+	users := service.SearchFriends(page.UserId)
+	utils.RespOKList(w, users, len(users))
 }

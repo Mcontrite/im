@@ -21,9 +21,9 @@ func CreateGroup(w http.ResponseWriter, req *http.Request) {
 func JoinGroup(w http.ResponseWriter, req *http.Request) {
 	var page model.Page
 	utils.Bind(req, &page)
-	err := service.JoinGroup(page.UserID, page.ObjectID)
+	err := service.JoinGroup(page.UserId, page.ObjectId)
 	//todo 刷新用户的群组信息
-	AddGroupID(page.UserID, page.ObjectID)
+	AddGroupID(page.UserId, page.ObjectId)
 	if err != nil {
 		utils.RespFail(w, err.Error())
 	} else {
@@ -32,9 +32,9 @@ func JoinGroup(w http.ResponseWriter, req *http.Request) {
 }
 
 //加载他的群
-func LoadGroup(w http.ResponseWriter, req *http.Request) {
+func LoadGroups(w http.ResponseWriter, req *http.Request) {
 	var page model.Page
 	utils.Bind(req, &page)
-	groups := service.SearchGroup(page.UserID)
-	utils.RespOkList(w, groups, len(groups))
+	groups := service.SearchGroups(page.UserId)
+	utils.RespOKList(w, groups, len(groups))
 }

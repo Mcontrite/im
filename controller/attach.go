@@ -13,7 +13,7 @@ import (
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 )
 
-//即将删掉,定期更新
+// todo 定期更新
 const (
 	AccessKeyId     = "5p2RZKnrUanMuQw9"
 	AccessKeySecret = "bsNmjU8Au08axedV40TRPCS5XIFAkK"
@@ -40,7 +40,7 @@ func UploadLocal(w http.ResponseWriter, req *http.Request) {
 	}
 	// 创建一个新文件d
 	suffix := ".png"
-	//如果前端文件名称包含后缀 xx.xx.png
+	// 如果前端文件名称包含后缀 xx.xx.png
 	ofilename := head.Filename
 	tmp := strings.Split(ofilename, ".")
 	if len(tmp) > 1 {

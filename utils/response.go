@@ -55,6 +55,6 @@ func RespOK(w http.ResponseWriter, data interface{}, msg string) {
 	Resp(w, 0, data, msg)
 }
 
-func RespOkList(w http.ResponseWriter, lists interface{}, total interface{}) {
+func RespOKList(w http.ResponseWriter, lists interface{}, total interface{}) {
 	RespList(w, 0, lists, total) //分页数目
 }

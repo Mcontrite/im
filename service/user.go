@@ -11,12 +11,11 @@ import (
 )
 
 func Register(phone, password, username, avatar, sex string) (user model.User, err error) {
-	//检测手机号码是否存在,
 	_, err = DB.Where("phone=?", phone).Get(&user)
 	if err != nil {
 		return
 	}
-	if user.ID > 0 {
+	if user.Id > 0 {
 		return user, errors.New("手机号已经注册")
 	}
 	user.Phone = phone
@@ -35,22 +34,22 @@ func Register(phone, password, username, avatar, sex string) (user model.User, e
 
 func Login(phone, password string) (user model.User, err error) {
 	_, err = DB.Where("phone=?", phone).Get(&user)
-	if user.ID == 0 {
+	if user.Id == 0 {
 		return user, errors.New("该用户不存在")
 	}
-	if !utils.ValidatePasswd(password, user.Salt, user.Password) {
+	if !utils.ValidatePassword(password, user.Salt, user.Password) {
 		return user, errors.New("密码不正确")
 	}
 	//刷新token
 	str := fmt.Sprintf("%d", time.Now().Unix())
 	token := strings.ToUpper(utils.MD5(str))
 	user.Token = token
-	_, err = DB.Where("id=?", user.ID).Cols("token").Update(&user)
+	_, err = DB.Where("id=?", user.Id).Cols("token").Update(&user)
 	return
 }
 
 //查找某个用户
 func GetUserByID(id int64) (user model.User) {
-	DB.Where("id = ?", id).Get(&user)
+	DB.Where("id=?", id).Get(&user)
 	return
 }

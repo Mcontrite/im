@@ -7,16 +7,16 @@ import (
 	"net/http"
 )
 
-func UserRegister(writer http.ResponseWriter, request *http.Request) {
-	//request.ParseForm()
-	//phone := request.PostForm.Get("phone")
-	//plainpwd := request.PostForm.Get("password")
-	//nickname := fmt.Sprintf("user%06d",rand.Int31())
+func UserRegister(w http.ResponseWriter, req *http.Request) {
+	//req.ParseForm()
+	//phone := req.PostForm.Get("phone")
+	//plainpwd := req.PostForm.Get("password")
+	//username := fmt.Sprintf("user%06d",rand.Int31())
 	//avatar :=""
 	//sex := model.SEX_UNKNOW
 	//有了数据绑定方法,不需要其他的啦
 	var user model.User
-	utils.Bind(request, &user)
+	utils.Bind(req, &user)
 	user, err := service.Register(
 		user.Phone,
 		user.Password,
@@ -24,33 +24,33 @@ func UserRegister(writer http.ResponseWriter, request *http.Request) {
 		user.Avatar,
 		user.Sex)
 	if err != nil {
-		utils.RespFail(writer, err.Error())
+		utils.RespFail(w, err.Error())
 	} else {
-		utils.RespOK(writer, user, "")
+		utils.RespOK(w, user, "")
 	}
 }
 
-func UserLogin(writer http.ResponseWriter, request *http.Request) {
+func UserLogin(w http.ResponseWriter, req *http.Request) {
 	//restapi json/xml返回
-	request.ParseForm()
-	phone := request.PostForm.Get("phone")
-	password := request.PostForm.Get("password")
+	req.ParseForm()
+	phone := req.PostForm.Get("phone")
+	password := req.PostForm.Get("password")
 	user, err := service.Login(phone, password)
 	if err != nil {
-		utils.RespFail(writer, err.Error())
+		utils.RespFail(w, err.Error())
 	} else {
-		utils.RespOK(writer, user, "")
+		utils.RespOK(w, user, "")
 	}
 }
 
 //解析一下
-func FindUserById(writer http.ResponseWriter, request *http.Request) {
+func FindUserByID(w http.ResponseWriter, req *http.Request) {
 	var user model.User
-	utils.Bind(request, &user)
-	user = service.GetUserByID(user.ID)
-	if user.ID == 0 {
-		utils.RespFail(writer, "该用户不存在")
+	utils.Bind(req, &user)
+	user = service.GetUserByID(user.Id)
+	if user.Id == 0 {
+		utils.RespFail(w, "该用户不存在")
 	} else {
-		utils.RespOK(writer, user, "")
+		utils.RespOK(w, user, "")
 	}
 }

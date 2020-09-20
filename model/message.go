@@ -1,9 +1,9 @@
 package model
 
 type Message struct {
-	ID       int64  `form:"id" json:"id,omitempty"`             //消息ID
-	UserID   int64  `form:"userid" json:"userid,omitempty"`     //谁发的
-	ObjectID int64  `form:"objectid" json:"objectid,omitempty"` //对端用户ID/群ID
+	Id       int64  `form:"id" json:"id,omitempty"`             //消息ID
+	UserId   int64  `form:"userid" json:"userid,omitempty"`     //谁发的
+	ObjectId int64  `form:"objectid" json:"objectid,omitempty"` //对端用户ID/群ID
 	Cmd      int    `form:"cmd" json:"cmd,omitempty"`           //群聊还是私聊
 	Type     int    `form:"type" json:"type,omitempty"`         //消息按照什么样式展示
 	Content  string `form:"content" json:"content,omitempty"`   //消息的内容

@@ -6,8 +6,8 @@ import (
 )
 
 type Page struct {
-	UserID   int64     `form:"userid" json:"userid"`
-	ObjectID int64     `form:"objectid" json:"objectid"`
+	UserId   int64     `form:"userid" json:"userid"`
+	ObjectId int64     `form:"objectid" json:"objectid"`
 	PageFrom int       `form:"pagefrom" json:"pagefrom"` //从哪页开始
 	PageSize int       `form:"pagesize" json:"pagesize"` //每页大小
 	Key      string    `form:"key" json:"key"`           //关键词
@@ -22,17 +22,15 @@ type Page struct {
 func (p *Page) GetPageSize() int {
 	if p.PageSize == 0 {
 		return 100
-	} else {
-		return p.PageSize
 	}
+	return p.PageSize
 }
 
 func (p *Page) GetPageFrom() int {
 	if p.PageFrom < 0 {
 		return 0
-	} else {
-		return p.PageFrom
 	}
+	return p.PageFrom
 }
 
 func (p *Page) GetOrderBy() string {
@@ -40,7 +38,6 @@ func (p *Page) GetOrderBy() string {
 		return fmt.Sprintf(" %s asc", p.Asc)
 	} else if len(p.Desc) > 0 {
 		return fmt.Sprintf(" %s desc", p.Desc)
-	} else {
-		return ""
 	}
+	return ""
 }

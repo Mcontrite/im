@@ -12,10 +12,10 @@ func MD5(str string) string {
 	return hex.EncodeToString(md.Sum(nil))
 }
 
-func ValidatePasswd(input, salt, password string) bool {
-	return MD5(input+salt) == password
-}
-
 func MD5Password(password, salt string) string {
 	return MD5(password + salt)
+}
+
+func ValidatePassword(input, salt, password string) bool {
+	return MD5(input+salt) == password
 }
