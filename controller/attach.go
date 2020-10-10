@@ -21,7 +21,7 @@ const (
 	Bucket          = "winliondev"
 )
 
-// 存储位置 ./upload,需要确保已经创建好
+// 存储位置 ./upload 需要确保已经创建好
 func init() {
 	os.MkdirAll("./upload", os.ModePerm)
 }
@@ -31,7 +31,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	//UploadOss(w,r)
 }
 
-// url格式 /upload/xxxx.png  需要确保网络能访问/upload/
+// url格式 /upload/xxxx.png  需要确保网络能访问 /upload/
 func UploadLocal(w http.ResponseWriter, req *http.Request) {
 	// 获得上传的源文件s
 	srcfile, head, err := req.FormFile("file")

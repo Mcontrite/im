@@ -18,6 +18,19 @@ func CreateGroup(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+//添加新的群ID到用户的groupset中
+func AddGroupID(userId, gid int64) {
+	//取得node
+	rwlocker.Lock()
+	node, ok := userNodeMap[userId]
+	if ok {
+		node.GroupSets.Add(gid)
+	}
+	//clientMap[userId] = node
+	rwlocker.Unlock()
+	//添加gid到set
+}
+
 func JoinGroup(w http.ResponseWriter, req *http.Request) {
 	var page model.Page
 	utils.Bind(req, &page)

@@ -12,6 +12,17 @@ import (
 	"time"
 )
 
+func Bind(req *http.Request, obj interface{}) error {
+	contentType := req.Header.Get("Content-Type")
+	if strings.Contains(strings.ToLower(contentType), "application/json") {
+		return BindJson(req, obj)
+	}
+	if strings.Contains(strings.ToLower(contentType), "application/x-www-form-urlencoded") {
+		return BindForm(req, obj)
+	}
+	return errors.New("当前方法暂不支持")
+}
+
 func BindJson(req *http.Request, obj interface{}) error {
 	data, err := ioutil.ReadAll(req.Body) //把 body 内容读入字符串
 	if err != nil {
@@ -28,17 +39,6 @@ func BindForm(req *http.Request, ptr interface{}) error {
 	return err
 }
 
-func Bind(req *http.Request, obj interface{}) error {
-	contentType := req.Header.Get("Content-Type")
-	if strings.Contains(strings.ToLower(contentType), "application/json") {
-		return BindJson(req, obj)
-	}
-	if strings.Contains(strings.ToLower(contentType), "application/x-www-form-urlencoded") {
-		return BindForm(req, obj)
-	}
-	return errors.New("当前方法暂不支持")
-}
-
 //自动绑定方法，借鉴了gin，改良了时间绑定,
 func mapForm(ptr interface{}, form map[string][]string) error {
 	typ := reflect.TypeOf(ptr).Elem()
@@ -53,9 +53,7 @@ func mapForm(ptr interface{}, form map[string][]string) error {
 		inputFieldName := typeField.Tag.Get("form")
 		if inputFieldName == "" {
 			inputFieldName = typeField.Name
-			// if "form" tag is nil, we inspect if the field is a struct.
-			// this would not make sense for JSON parsing but it does for a form
-			// since data is flatten
+			// 如果表单为 nil 则判断是否为 struct
 			if structFieldKind == reflect.Struct {
 				err := mapForm(structField.Addr().Interface(), form)
 				if err != nil {

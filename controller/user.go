@@ -43,7 +43,6 @@ func UserLogin(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-//解析一下
 func FindUserByID(w http.ResponseWriter, req *http.Request) {
 	var user model.User
 	utils.Bind(req, &user)
