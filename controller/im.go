@@ -5,7 +5,6 @@ import (
 	"im/model"
 	"im/service"
 	"log"
-	"net"
 	"net/http"
 	"strconv"
 	"sync"
@@ -23,7 +22,7 @@ const (
 //形成userid和Node的映射关系
 type Node struct {
 	Conn      *websocket.Conn
-	DataQueue chan []byte //并行转串行
+	DataQueue chan []byte //并行数据转串行
 	GroupSets set.Interface
 }
 
@@ -96,6 +95,7 @@ func sendproc(node *Node) {
 //ws接收协程
 func recvproc(node *Node) {
 	for {
+		// 返回3个参数：type(int), buffer([]byte), err
 		_, data, err := node.Conn.ReadMessage()
 		if err != nil {
 			log.Println(err.Error())
@@ -106,64 +106,6 @@ func recvproc(node *Node) {
 		//broadMsg(data)
 		log.Printf("[ws]<=%s\n", data)
 	}
-}
-
-func init() {
-	go udpsendproc()
-	go udprecvproc()
-}
-
-// udp数据的发送协程
-func udpsendproc() {
-	log.Println("start udpsendproc")
-	// 使用udp协议拨号
-	udpcon, err := net.DialUDP("udp", nil, &net.UDPAddr{
-		IP:   net.IPv4(192, 168, 0, 255),
-		Port: 3000,
-	})
-	defer udpcon.Close()
-	if err != nil {
-		log.Println(err.Error())
-		return
-	}
-	// 通过得到的con发送消息
-	// udpcon.Write()
-	for {
-		select {
-		case data := <-udpsendchan:
-			_, err = udpcon.Write(data)
-			if err != nil {
-				log.Println(err.Error())
-				return
-			}
-		}
-	}
-}
-
-// upd数据的接收处理协程
-func udprecvproc() {
-	log.Println("start udprecvproc")
-	// 监听udp广播端口
-	udpcon, err := net.ListenUDP("udp", &net.UDPAddr{
-		IP:   net.IPv4zero,
-		Port: 3000,
-	})
-	defer udpcon.Close()
-	if err != nil {
-		log.Println(err.Error())
-	}
-	// 处理端口发过来的数据
-	for {
-		var buf [512]byte
-		n, err := udpcon.Read(buf[0:])
-		if err != nil {
-			log.Println(err.Error())
-			return
-		}
-		//直接数据处理
-		dispatch(buf[0:n])
-	}
-	log.Println("stop updrecvproc")
 }
 
 //后端调度逻辑处理
@@ -201,3 +143,61 @@ func sendMsg(userId int64, msg []byte) {
 		node.DataQueue <- msg
 	}
 }
+
+// func init() {
+// 	go udpsendproc()
+// 	go udprecvproc()
+// }
+
+// // udp数据的发送协程
+// func udpsendproc() {
+// 	log.Println("start udpsendproc")
+// 	// 使用udp协议拨号
+// 	udpcon, err := net.DialUDP("udp", nil, &net.UDPAddr{
+// 		IP:   net.IPv4(192, 168, 0, 255),
+// 		Port: 3000,
+// 	})
+// 	defer udpcon.Close()
+// 	if err != nil {
+// 		log.Println(err.Error())
+// 		return
+// 	}
+// 	// 通过得到的con发送消息
+// 	// udpcon.Write()
+// 	for {
+// 		select {
+// 		case data := <-udpsendchan:
+// 			_, err = udpcon.Write(data)
+// 			if err != nil {
+// 				log.Println(err.Error())
+// 				return
+// 			}
+// 		}
+// 	}
+// }
+
+// // upd数据的接收处理协程
+// func udprecvproc() {
+// 	log.Println("start udprecvproc")
+// 	// 监听udp广播端口
+// 	udpcon, err := net.ListenUDP("udp", &net.UDPAddr{
+// 		IP:   net.IPv4zero,
+// 		Port: 3000,
+// 	})
+// 	defer udpcon.Close()
+// 	if err != nil {
+// 		log.Println(err.Error())
+// 	}
+// 	// 处理端口发过来的数据
+// 	for {
+// 		var buf [512]byte
+// 		n, err := udpcon.Read(buf[0:])
+// 		if err != nil {
+// 			log.Println(err.Error())
+// 			return
+// 		}
+// 		//直接数据处理
+// 		dispatch(buf[0:n])
+// 	}
+// 	log.Println("stop updrecvproc")
+// }

@@ -28,7 +28,6 @@ func AddGroupID(userId, gid int64) {
 	}
 	//clientMap[userId] = node
 	rwlocker.Unlock()
-	//添加gid到set
 }
 
 func JoinGroup(w http.ResponseWriter, req *http.Request) {

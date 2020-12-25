@@ -8,13 +8,14 @@ import (
 	"net/http"
 )
 
-//注册模板
+// 注册模板
 func RegisterView() {
+	// 获取全部 HTML 模板文件
 	tpl, err := template.ParseGlob("view/**/*")
 	if nil != err {
 		log.Fatal(err)
 	}
-	//通过for循环做好映射
+	// 循环给每个 HTML 模板文件做好映射
 	for _, v := range tpl.Templates() {
 		tplname := v.Name()
 		fmt.Println("HandleFunc     " + v.Name())
@@ -29,7 +30,7 @@ func RegisterView() {
 }
 
 func main() {
-	//绑定请求和处理函数
+	// 绑定请求和处理函数
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/user/login.html", http.StatusFound)
 	})

@@ -31,14 +31,17 @@ func AddFriend(userid, user2id int64) error {
 	if friend.Id > 0 {
 		return errors.New("已添加这个好友")
 	}
-	session := DB.NewSession() //事务
+	// 开启事务
+	session := DB.NewSession()
 	session.Begin()
-	_, err2 := session.InsertOne(model.Friend{ //插入自己的数据
+	// 插入自己的数据
+	_, err2 := session.InsertOne(model.Friend{
 		UserId:   userid,
 		User2Id:  user2id,
 		CreateAt: time.Now(),
 	})
-	_, err3 := session.InsertOne(model.Friend{ //插入对方的数据
+	// 插入对方的数据
+	_, err3 := session.InsertOne(model.Friend{
 		UserId:   user2id,
 		User2Id:  userid,
 		CreateAt: time.Now(),

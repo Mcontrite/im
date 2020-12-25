@@ -260,6 +260,7 @@
                         msg.type=3;
                         msg.url=url;
                         msg.amount = num;
+                        //显示自己发送的消息
                         this.showmsg(userInfo(),msg)
                         //console.log("sendaudiomsg",this.msglist);
                         this.webSocket.send(JSON.stringify(msg))
@@ -291,11 +292,9 @@
                         }
                     },
                     onmessage:function(data){
-
                         this.loaduserinfo(data.userid,function(user){
                             this.showmsg(user,data)
                         }.bind(this))
-
                     },
                     initwebsocket:function(){
                         var url="ws://"+location.host+"/im?id="+util.parseQuery("id")+"&token=" +util.parseQuery("token");
