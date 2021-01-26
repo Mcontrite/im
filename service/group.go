@@ -2,26 +2,26 @@ package service
 
 import (
 	"errors"
-	"im/model"
+	"im2/model"
 	"time"
 )
 
 func CreateGroup(group model.Group) (ret model.Group, err error) {
 	if len(group.Groupname) == 0 {
-		err = errors.New("群名称不能为空")
+		err = errors.New("Groupname can not be empty")
 		return
 	}
-	if group.LeaderId == 0 {
-		err = errors.New("请先登录")
+	if group.LeaderID == 0 {
+		err = errors.New("Please login first")
 		return
 	}
-	oldgroup := model.Group{LeaderId: group.LeaderId}
+	oldgroup := model.Group{LeaderID: group.LeaderID}
 	count, err := DB.Count(&oldgroup)
 	if count > 5 {
-		err = errors.New("一个用户最多创5个群")
+		err = errors.New("Each user can create up to 5 groups")
 		return oldgroup, err
 	}
-	group.CreateAt = time.Now()
+	group.CreatedAt = time.Now()
 	session := DB.NewSession()
 	session.Begin()
 	_, err = session.InsertOne(&group)
@@ -29,12 +29,11 @@ func CreateGroup(group model.Group) (ret model.Group, err error) {
 		session.Rollback()
 		return oldgroup, err
 	}
-	_, err = session.InsertOne(
-		model.UserGroup{
-			UserId:   group.LeaderId,
-			GroupId:  group.Id,
-			CreateAt: time.Now(),
-		})
+	_, err = session.InsertOne(model.UserGroup{
+		UserID:    group.LeaderID,
+		GroupID:   group.ID,
+		CreatedAt: time.Now(),
+	})
 	if err != nil {
 		session.Rollback()
 	} else {
@@ -43,17 +42,17 @@ func CreateGroup(group model.Group) (ret model.Group, err error) {
 	return oldgroup, err
 }
 
-func SearchGroupsIDs(userid int64) (ids []int64) {
+func SearchGroupID(userid int) (ids []int) {
 	usergroups := make([]model.UserGroup, 0)
 	DB.Where("user_id=?", userid).Find(&usergroups)
 	for _, v := range usergroups {
-		ids = append(ids, v.GroupId)
+		ids = append(ids, v.GroupID)
 	}
 	return
 }
 
-func SearchGroups(userid int64) (groups []model.Group) {
-	ids := SearchGroupsIDs(userid)
+func SearchGroups(userid int) (groups []model.Group) {
+	ids := SearchGroupsID(userid)
 	if len(ids) == 0 {
 		return
 	}
@@ -61,16 +60,16 @@ func SearchGroups(userid int64) (groups []model.Group) {
 	return
 }
 
-func JoinGroup(userid, groupid int64) error {
+func JoinGroup(userid, groupid int) error {
 	usergroup := model.UserGroup{
-		UserId:  userid,
-		GroupId: groupid,
+		UserID:  userid,
+		GroupID: groupid,
 	}
 	DB.Get(&usergroup)
-	if usergroup.Id == 0 {
-		usergroup.CreateAt = time.Now()
+	if usergroup.ID == 0 {
+		usergroup.CreatedAt = time.Now()
 		_, err := DB.InsertOne(usergroup)
 		return err
 	}
-	return errors.New("已加入这个群")
+	return errors.New("You are already in this group")
 }
